@@ -1,0 +1,25 @@
+CFLAGS = -Wall  # -g -DXD3_DEBUG=2 -DNDEBUG=0 -DDEBUG_MODE2=1
+
+DEPS = src/xdelta/*.h src/xdelta/*.c src/*.c src/*.h src/dln/*.c src/dln/*.h
+
+TARGETS = defs dln sql-test
+
+all: defs dln
+
+defs: src/deltafs.c $(DEPS)
+	$(CC) $(CFLAGS) -D_FILE_OFFSET_BITS=64 src/opts.c src/delta.c src/deltafs.c src/sql.c -lfuse -lsqlite3 -o defs
+
+dln: src/dln/dln.c $(DEPS)
+	$(CC) $(CFLAGS) src/dln/dln.c src/dln/opts.c src/dln/delta.c src/sql.c -lsqlite3 -o dln
+
+sql-test: src/sql-test.c $(DEPS)
+	$(CC) $(CFLAGS) src/sql-test.c src/sql.c -lsqlite3 -o sql-test
+
+clean:
+	rm -f $(TARGETS)
+
+install:
+	./install.sh
+
+uninstall:
+	./uninstall.sh

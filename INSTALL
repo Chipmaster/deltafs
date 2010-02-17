@@ -1,0 +1,20 @@
+Dependencies:
+
+libsqlite3-dev
+libfuse-dev
+fuse-utils - gives fusermount which is needed
+
+
+Install Notes:
+
+$./configure
+$make
+#make install
+
+Add yourself to the fuse group if you aren't already.
+Make sure the fuse module is loaded.
+
+To mount with /etc/fstab add this line:
+defs#/mount/dir	    /mount/target	fuse	user,allow_other	0	0
+You will also need to edit your /etc/fuse.conf file
+user_allow_other 

@@ -1,0 +1,34 @@
+Improve performace related to repeated writes on the same file
+	-Write scheduler/combiner
+Allow for linked trees of arbitrary depth.  
+      For now, I don't like this idea.  It's definitely doable, but it will greatly add to code size 
+      and lack of readability as large functions must be made recursive.  Also, there's a huge speed
+      cost.  For now, it's not worth it.
+File locks instead of semaphores?
+Cleaning and ordering code.
+
+IDEA! Okay, so we can improve write performance like 100 fold I believe and here's how.  Let's say 
+we need to do a write.  We decode a single window around the write, but the entire window (we need a
+new read or a more intelligent way to call read), then we pull the same window from the source file.
+Now we write the changes and diff just the window.  And now we either find a way to use xdelta 
+encode on just a window, or we call encode on the two files comprised of just the windows giving us 
+a diff file.  We then extract the diff window and insert it into the delta file that we are writing 
+to overwriting where the window was previously.  The downside is that it might differ in size so 
+we'd need to shift everything after that part of the file down.  Since diff files are at most 
+Kilobytes in size, this is not all that costly.  And bingo, reasonably fast writes.  I'll get 
+working on this as soon as we decide what to do with headers.  No sense in rewriting code.
+
+
+Programs definitely working with write:
+
+Programs tested and possibly working for write:
+Picard
+Hexedit
+Easytag
+
+Programs with known issues with write:
+Nano - works on all children from what I can tell, but parent files a call to setattr is made and then segfault.
+Emacs - It does a renaming thing which results in defs using ridiculous cpu and never recovers.
+
+
+To do before initial release:

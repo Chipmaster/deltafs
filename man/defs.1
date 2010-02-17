@@ -1,0 +1,141 @@
+.TH DEFS 1  "June 14, 2009" "DEFS version 0.1.0" "User Commands"
+.SH NAME
+DEFS \- A userspace VCDIFF (RFC 3284 compliant) differencing file system
+.SH SYNOPSIS
+.B defs [options] /mount/dir /mount/target
+.SH DESCRIPTION
+DEFS (DElta FileSystem) is a filesystem designed to minimize the storage 
+space tasked with storing multiple copies of files with small differences.
+When operating on a defs filesystem, the hard link system call (triggered
+by ln or cp \-l) is replaced with a \'firm link\' implementation, the goal
+being a middle ground between hard links (where no extra space is taken,
+but the resulting file is immutable) and a full copy (where twice the
+space is taken).  The firm links can be read transparently by the
+filesystem, and very early and unstable write support exists for modifying
+these \'firm links\'.  For now to modify a delta file it is recommended to
+make a copy, modify the copy, and use the bundled user tool \'dln\' to
+create the \'firm link\'.
+.SH OPTIONS
+.SS "general options:"
+.TP
+\fB\-o\fR opt,[opt...]
+mount options
+.TP
+\fB\-h\fR   \fB\-\-help\fR
+print help
+.TP
+\fB\-V\fR   \fB\-\-version\fR
+print version
+.SS "DEFS options:"
+.TP
+\fB\-o windowabs=size
+configures the window size of the VCDIFF \'firm link\' files.  Smaller
+sizes allow for more granularity during decodes, but larger file sizes.
+.TP
+\fB\-o windowrel=size
+configures the windows size of the VCDIFF \'firm link\' relative to the
+size of the original file.
+.SS "FUSE options:"
+.TP
+\fB\-d\fR   \fB\-o\fR debug
+enable debug output (implies \fB\-f\fR)
+.TP
+\fB\-f\fR
+foreground operation
+.TP
+\fB\-s\fR
+disable multi\-threaded operation
+.TP
+\fB\-o\fR allow_other
+allow access to other users
+.TP
+\fB\-o\fR allow_root
+allow access to root
+.TP
+\fB\-o\fR nonempty
+allow mounts over non\-empty file/dir
+.HP
+\fB\-o\fR default_permissions
+enable permission checking by kernel
+.TP
+\fB\-o\fR fsname=NAME
+set filesystem name
+\fB\-o\fR subtype=NAME
+set filesystem type
+.TP
+\fB\-o\fR large_read
+issue large read requests (2.4 only)
+.TP
+\fB\-o\fR max_read=N
+set maximum size of read requests
+.TP
+\fB\-o\fR hard_remove
+immediate removal (don't hide files)
+.TP
+\fB\-o\fR use_ino
+let filesystem set inode numbers
+.TP
+\fB\-o\fR readdir_ino
+try to fill in d_ino in readdir
+.TP
+\fB\-o\fR direct_io
+use direct I/O
+.TP
+\fB\-o\fR kernel_cache
+cache files in kernel
+.TP
+\fB\-o\fR [no]auto_cache
+enable caching based on modification times
+.TP
+\fB\-o\fR umask=M
+set file permissions (octal)
+.TP
+\fB\-o\fR uid=N
+set file owner
+.TP
+\fB\-o\fR gid=N
+set file group
+.TP
+\fB\-o\fR entry_timeout=T
+cache timeout for names (1.0s)
+.TP
+\fB\-o\fR negative_timeout=T
+cache timeout for deleted names (0.0s)
+.TP
+\fB\-o\fR attr_timeout=T
+cache timeout for attributes (1.0s)
+.TP
+\fB\-o\fR ac_attr_timeout=T
+auto cache timeout for attributes (attr_timeout)
+.TP
+\fB\-o\fR intr
+allow requests to be interrupted
+.TP
+\fB\-o\fR intr_signal=NUM
+signal to send on interrupt (10)
+.TP
+\fB\-o\fR modules=M1[:M2...]
+names of modules to push onto filesystem stack
+.TP
+\fB\-o\fR max_write=N
+set maximum size of write requests
+.TP
+\fB\-o\fR max_readahead=N
+set maximum readahead
+.TP
+\fB\-o\fR async_read
+perform reads asynchronously (default)
+.TP
+\fB\-o\fR sync_read
+perform reads synchronously
+.SH EXAMPLES
+.TP
+Manually mount a defs filesystem and set the relative window size to 1/100:
+.B defs \-o windowrel=.01 /mount/dir /mount/target
+.PP
+.TP
+Mount a defs filesystem with /etc/fstab and allow all users access
+.B defs#/mount/dir    /mount/target    fuse    user,allow_other    0    0
+.PP
+.SH AUTHORS
+Patrick Stetter <chipmaster32@gmail.com>, Corey McClymonds <galeru@gmail.com>

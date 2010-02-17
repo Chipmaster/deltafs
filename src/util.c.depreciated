@@ -1,0 +1,104 @@
+/*
+ * util.c contains generic util functions
+ * Copyright (C) 2009  Corey McClymonds <galeru@gmail.com>
+ * Copyright (C) 2009 Patrick Stetter <chipmaster32@gmail.com>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifdef linux
+/* For pread()/pwrite() */
+#define _XOPEN_SOURCE 500
+#endif
+
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <stdio.h>
+#include "util.h"
+
+int defs_delta(int fd) 
+{
+	char buf[4];
+	int res;
+  
+	res = pread(fd, buf, 4, 0);
+	if (res == -1) {
+		return -errno;
+	}
+  
+	res = strncmp(buf, "DEFS", 4);
+	if (!res) {
+		return 0;
+	}
+	return 1;
+}
+
+int defs_version(int fd, char *buf)
+{
+	int res;
+  
+	res = pread(fd, buf, 4, 4);
+	if (res == -1) {
+		return -errno;
+	}
+  
+	return 0;
+}
+
+int defs_header(int fd, off_t size)
+{
+	int res;
+	char *buf;
+	char tmp[20];
+  
+	buf = calloc(20+9, sizeof(char));
+	if (buf == NULL) {
+		return 0;
+	}
+
+	strcpy(buf, "DEFS");
+	buf[4] = 1;
+	buf[5] = 0;
+	buf[6] = 0;
+	buf[7] = 0;
+	snprintf(tmp, 20, "%u", (unsigned int) size);
+	strcpy(buf+8, tmp);
+  
+	res = pwrite(fd, buf, 20+9, 0);
+	if (res == -1) {
+		return -errno;
+	}
+	return 20+9;
+}
+
+int defs_offset(int fd) 
+{
+	return 20+9;
+}
+
+off_t defs_size(int fd)
+{
+	int res;
+	char buf[20];
+
+	res = pread(fd, buf, 20, 8);
+	if (res == -1) {
+		return (off_t) -errno;  /* fix later, shouldn't be a problem for now */
+	}
+	
+	return (off_t) atol(buf);
+} 

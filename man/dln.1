@@ -1,0 +1,50 @@
+.TH DLN 1  "June 14, 2009" "DLN (DEFS) version 0.1.0" "User Commands"
+.SH NAME
+DLN \- A userspace utility to create delta files based on source and input
+files for use with defs.
+.SH SYNOPSIS
+.B dln [options] SrcFile InFile
+.SH DESCRIPTION
+DLN (Delta LiNk) is a userspace utility for use with defs.  It creates delta
+files based on source and input files that can be used with defs without any
+other work required.  Technically, any VCDIFF complaint binary differencer
+can be used to create delta files for use with defs, but then the user would
+also have to manually add an entry to the defs database.
+.SH OPTIONS
+.SS "general options:"
+.TP
+\fB\-h\fR   \fB\-\-help\fR
+print help
+.TP
+\fB\-V\fR   \fB\-\-version\fR
+print version
+.SS "DLN options:"
+.TP
+\fB\-v\fR   \fB\-\-verbose\fR
+verbose mode
+.TP
+\fB\-s\fR   \fB\-\-silent\fR
+silent mode
+.TP
+\fB\-S\fR   \fB\-\-safe\fR
+safe mode retains the temporarly input files (InputFile.dlnbak) instead of
+replacing them with the delta file.
+.TP
+\fB\-o\fR   \fB\-\-output\fR
+specify a different output file.  The default behavior is to replace the 
+input file.
+.TP
+\fB\-o windowabs=size
+configures the window size of the VCDIFF delta files.  Smaller
+sizes allow for more granularity during decodes, but larger file sizes.
+.TP
+\fB\-o windowrel=size
+configures the windows size of the VCDIFF delta files relative to the size
+of the original file.
+.SH EXAMPLES
+.TP
+Replace input file with delta file based on source file for use with defs
+.B dln /source/file /input/file
+.PP
+.SH AUTHORS
+Patrick Stetter <chipmaster32@gmail.com>, Corey McClymonds <galeru@gmail.com>
